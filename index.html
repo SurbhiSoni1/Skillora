@@ -220,6 +220,7 @@ select.inp{cursor:pointer;min-height:44px}
 .s-btn[data-id=\"jobs\"].on{border-left-color:var(--violet);background:var(--violet-bg);color:var(--violet)}
 .s-btn[data-id=\"simulate\"].on{border-left-color:var(--blue);background:var(--blue-bg);color:var(--blue)}
 .s-btn[data-id=\"opportunities\"].on{border-left-color:var(--sage);background:var(--sage-bg);color:var(--sage)}
+.s-btn[data-id="linkedin"].on{border-left-color:#0A66C2;background:#EAF2FD;color:#0A66C2}
 .sidebar-foot{padding:16px 20px;border-top:1px solid var(--faint);font-size:12px;color:var(--mid);display:flex;align-items:center;gap:7px}
 .sidebar-foot .liveDot{width:7px;height:7px;border-radius:50%;background:var(--sage);flex-shrink:0;animation:amberPulse 2.5s ease infinite;--amber-pulse-color:var(--sage)}
 
@@ -707,7 +708,7 @@ select.inp{cursor:pointer;min-height:44px}
       <div class="h-sub">Here's what you can do today.</div>
 
       <div class="quick-strip">
-        <div class="qs-card"><div class="qs-num">7</div><div class="qs-label">tools available</div></div>
+        <div class="qs-card"><div class="qs-num">8</div><div class="qs-label">tools available</div></div>
         <div class="qs-card"><div class="qs-num">24/7</div><div class="qs-label">AI mentor access</div></div>
         <div class="qs-card" id="resumeCount"><div class="qs-num">0</div><div class="qs-label">resumes built</div></div>
       </div>
@@ -727,6 +728,7 @@ select.inp{cursor:pointer;min-height:44px}
         <div class="j-item" onclick="nav('opportunities')"><div class="j-icon">⬢</div><div class="j-text"><div class="t">Explore opportunities</div><div class="d">Internships, hackathons, fellowships & more — matched to you.</div></div><div class="j-arrow">→</div></div>
         <div class="j-item" onclick="nav('jobs')"><div class="j-icon"><i data-lucide="target" class="ic"></i></div><div class="j-text"><div class="t">See my Job Match Board</div><div class="d">Roles ranked by % fit to your skills — internships, jobs & hackathons.</div></div><div class="j-arrow">→</div></div>
         <div class="j-item" onclick="nav('simulate')"><div class="j-icon">⚙</div><div class="j-text"><div class="t">Try a job simulation</div><div class="d">A real mini on-the-job task, graded with instant feedback.</div></div><div class="j-arrow">→</div></div>
+        <div class="j-item" onclick="nav('linkedin')"><div class="j-icon"><span class="plat-logo mono" style="background:#0A66C2">in</span></div><div class="j-text"><div class="t">Optimize my LinkedIn</div><div class="d">Profile score, recruiter review, messages, growth plan & more.</div></div><div class="j-arrow">→</div></div>
       </div>
     </section>
 
@@ -740,6 +742,7 @@ select.inp{cursor:pointer;min-height:44px}
     <section class="screen" data-s="dashboard" id="sDashboard"></section>
     <section class="screen" data-s="jobs" id="sJobs"></section>
     <section class="screen" data-s="simulate" id="sSimulate"></section>
+    <section class="screen" data-s="linkedin" id="sLinkedIn"></section>
   </main>
 
   <nav class="tabs" id="tabBar"></nav>
@@ -892,6 +895,7 @@ const NAVS = [
   { id:"opportunities", label:"Opportunities",  short:"Explore",   icon:"⬢" },
   { id:"jobs",          label:"Job Match Board", short:"Jobs",     icon:'<i data-lucide="target" class="ic"></i>' },
   { id:"simulate",      label:"Job Simulations", short:"Simulate", icon:"⚙" },
+  { id:"linkedin",      label:"LinkedIn Optimizer", short:"LinkedIn", icon: platLogo("LinkedIn") },
 ];
 const PRIMARY = ["home","dashboard","resume","chat","skills"];
 let curScreen = "home", moreVisible = false, booted = false, resumeBuiltCount = 0;
@@ -989,7 +993,7 @@ function boot() {
   buildSidebar(); buildTabs(); buildMorePanel();
   buildProjects(); buildResume(); buildChat();
   buildRoadmap(); buildSkills(); buildInterview(); buildOpportunities();
-  buildJobs(); buildSimulate(); buildDashboard();
+  buildJobs(); buildSimulate(); buildLinkedIn(); buildDashboard();
   nav("home");
   animateStats();
   setTimeout(loadTip, 300); // defer so UI renders before first AI call
@@ -2087,6 +2091,194 @@ async function submitSimulation() {
   SIM.earnedBadges.push({ roleTitle: role.title, roleIcon: role.icon, pct, badge });
   SIM.grading = false;
   renderSimulate();
+}
+
+/* ═══════════════════════════════════════════════════════
+   LINKEDIN OPTIMIZER — profile score, recruiter review, URL & banner
+   ideas, message drafting, activity plan, salary insights, growth plan
+═══════════════════════════════════════════════════════ */
+const LI_TOOLS = [
+  { id:"score",      label:"Profile Score",       icon:'<i data-lucide="gauge" class="ic"></i>' },
+  { id:"recruiter",  label:"Recruiter Review",    icon:'<i data-lucide="user-search" class="ic"></i>' },
+  { id:"url",        label:"Custom URL",          icon:'<i data-lucide="link" class="ic"></i>' },
+  { id:"banner",     label:"Banner Ideas",        icon:'<i data-lucide="image" class="ic"></i>' },
+  { id:"networking", label:"Networking Message",  icon:'<i data-lucide="handshake" class="ic"></i>' },
+  { id:"followup",   label:"Follow-up Message",   icon:'<i data-lucide="mail" class="ic"></i>' },
+  { id:"activity",   label:"Activity Plan",       icon:'<i data-lucide="calendar-check" class="ic"></i>' },
+  { id:"salary",     label:"Salary Insights",     icon:'<i data-lucide="indian-rupee" class="ic"></i>' },
+  { id:"growth",     label:"30-Day Growth Plan",  icon:'<i data-lucide="trending-up" class="ic"></i>' },
+  { id:"audit",         label:"AI Audit Report",         icon:'<i data-lucide="file-check-2" class="ic"></i>' },
+  { id:"beforeafter",   label:"Before vs After",         icon:'<i data-lucide="repeat" class="ic"></i>' },
+  { id:"visibility",    label:"Search Visibility",       icon:'<i data-lucide="search" class="ic"></i>' },
+  { id:"interviewprob", label:"Interview Probability",   icon:'<i data-lucide="percent" class="ic"></i>' },
+];
+const LI = {
+  tool: "score",
+  name: "", headline: "", targetRole: "", summary: "",
+  netType: "Recruiter", netContext: "",
+  fuType: "Applying", fuCompany: "",
+  location: "",
+  results: {}, loading: {}
+};
+
+function buildLinkedIn() { renderLinkedIn(); }
+
+function renderLinkedIn() {
+  const root = document.getElementById("sLinkedIn");
+  root.style.maxWidth = "720px";
+  root.innerHTML = "";
+  root.appendChild(mk("h2","section-head serif","LinkedIn Optimizer"));
+  root.appendChild(mk("p","h-sub","One profile, thirteen ways to make recruiters notice it. Fill in your details once, then run any tool below."));
+
+  // ── Shared profile inputs ──
+  const card = mk("div","card opt-card");
+  const nf = mk("div","field"); nf.appendChild(mk("label","","Full name"));
+  const ni = document.createElement("input"); ni.className="inp"; ni.type="text"; ni.placeholder="e.g. Aarav Sharma"; ni.value=LI.name;
+  ni.addEventListener("input", e => LI.name = e.target.value); nf.appendChild(ni); card.appendChild(nf);
+
+  const hf = mk("div","field"); hf.appendChild(mk("label","","Current headline / title")); hf.appendChild(mk("div","hint","Whatever's on your profile now — or leave blank if you don't have one yet."));
+  const hi = document.createElement("input"); hi.className="inp"; hi.type="text"; hi.placeholder="Final-year CS student | Aspiring SDE"; hi.value=LI.headline;
+  hi.addEventListener("input", e => LI.headline = e.target.value); hf.appendChild(hi); card.appendChild(hf);
+
+  const rf = mk("div","field"); rf.appendChild(mk("label","","Target role"));
+  const ri = document.createElement("input"); ri.className="inp"; ri.type="text"; ri.placeholder="Software Engineer, Data Analyst, Product Manager…"; ri.value=LI.targetRole;
+  ri.addEventListener("input", e => LI.targetRole = e.target.value); rf.appendChild(ri); card.appendChild(rf);
+
+  const sf = mk("div","field"); sf.appendChild(mk("label","","About / experience summary")); sf.appendChild(mk("div","hint","Paste your About section, or just describe your background in a few lines."));
+  const st = document.createElement("textarea"); st.className="inp"; st.rows=4; st.placeholder="3rd year CS student, 2 internships in web dev, built 4 projects, know React and Node…"; st.value=LI.summary;
+  st.addEventListener("input", e => LI.summary = e.target.value); sf.appendChild(st); card.appendChild(sf);
+  root.appendChild(card);
+
+  // ── Tool switcher ──
+  root.appendChild(mk("div","dash-section-title","CHOOSE A TOOL",{style:"margin-top:22px"}));
+  const tr = mk("div","chip-row");
+  LI_TOOLS.forEach(t => {
+    const b = mk("button",`chip tag${LI.tool===t.id ? " active" : ""}`, `${t.icon} ${esc(t.label)}`);
+    b.addEventListener("click", () => { LI.tool = t.id; scheduleRender('linkedin', renderLinkedIn); });
+    tr.appendChild(b);
+  });
+  root.appendChild(tr);
+
+  // ── Tool-specific inputs + run button ──
+  const toolCard = mk("div","card opt-card",null,{style:"margin-top:14px"});
+
+  if (LI.tool === "networking") {
+    const tf = mk("div","field"); tf.appendChild(mk("label","","Who's this message for?"));
+    const cr = mk("div","chip-row",null,{style:"margin-top:8px"});
+    ["Recruiter","Alumni","Mentor","Hiring manager"].forEach(o => {
+      const b = mk("button",`chip tag${LI.netType===o ? " active" : ""}`, o);
+      b.addEventListener("click", () => { LI.netType = o; scheduleRender('linkedin', renderLinkedIn); });
+      cr.appendChild(b);
+    }); tf.appendChild(cr); toolCard.appendChild(tf);
+    const cf = mk("div","field"); cf.appendChild(mk("label","","Any context?")); cf.appendChild(mk("div","hint","Optional — their company, a shared connection, why you're reaching out."));
+    const ci = document.createElement("textarea"); ci.className="inp"; ci.rows=2; ci.placeholder="Reaching out about SDE openings at their company…"; ci.value=LI.netContext;
+    ci.addEventListener("input", e => LI.netContext = e.target.value); cf.appendChild(ci); toolCard.appendChild(cf);
+  } else if (LI.tool === "followup") {
+    const tf = mk("div","field"); tf.appendChild(mk("label","","Following up after…"));
+    const cr = mk("div","chip-row",null,{style:"margin-top:8px"});
+    ["Applying","Interview"].forEach(o => {
+      const b = mk("button",`chip tag${LI.fuType===o ? " active" : ""}`, o);
+      b.addEventListener("click", () => { LI.fuType = o; scheduleRender('linkedin', renderLinkedIn); });
+      cr.appendChild(b);
+    }); tf.appendChild(cr); toolCard.appendChild(tf);
+    const cf = mk("div","field"); cf.appendChild(mk("label","","Company name"));
+    const ci = document.createElement("input"); ci.className="inp"; ci.type="text"; ci.placeholder="e.g. Flipkart"; ci.value=LI.fuCompany;
+    ci.addEventListener("input", e => LI.fuCompany = e.target.value); cf.appendChild(ci); toolCard.appendChild(cf);
+  } else if (LI.tool === "salary") {
+    const cf = mk("div","field"); cf.appendChild(mk("label","","Location")); cf.appendChild(mk("div","hint","City/country — ranges vary a lot by market."));
+    const ci = document.createElement("input"); ci.className="inp"; ci.type="text"; ci.placeholder="Bengaluru, India"; ci.value=LI.location;
+    ci.addEventListener("input", e => LI.location = e.target.value); cf.appendChild(ci); toolCard.appendChild(cf);
+  } else if (LI.tool === "interviewprob") {
+    const cf = mk("div","field"); cf.appendChild(mk("label","","Target company (optional)")); cf.appendChild(mk("div","hint","Leave blank for a general estimate against your target role."));
+    const ci = document.createElement("input"); ci.className="inp"; ci.type="text"; ci.placeholder="e.g. Microsoft, Deloitte, TCS…"; ci.value=LI.fuCompany;
+    ci.addEventListener("input", e => LI.fuCompany = e.target.value); cf.appendChild(ci); toolCard.appendChild(cf);
+  }
+
+  const disabled = LI.tool === "url" ? !LI.name : (!LI.summary && !LI.targetRole);
+  const toolLabel = LI_TOOLS.find(t => t.id === LI.tool).label;
+  const gb = mk("button","btn btn-amber", LI.loading[LI.tool] ? `${loader()} Working…` : `Run ${esc(toolLabel)}`, {style:"margin-top:4px"});
+  gb.disabled = !!LI.loading[LI.tool] || disabled;
+  gb.addEventListener("click", () => doLinkedIn(LI.tool));
+  toolCard.appendChild(gb);
+  root.appendChild(toolCard);
+
+  // ── Result ──
+  const res = LI.results[LI.tool];
+  if (res) {
+    const resCard = mk("div","card",null,{style:"margin-top:14px"});
+    const m = res.match(/SCORE:\s*(\d{1,3})/i);
+    if (m && ["score","recruiter","visibility","interviewprob"].includes(LI.tool)) {
+      const pct = Math.min(100, parseInt(m[1],10));
+      const label = LI.tool === "score" ? "Profile score"
+        : LI.tool === "recruiter" ? "Shortlist probability"
+        : LI.tool === "visibility" ? "Search visibility score"
+        : "Interview probability";
+      resCard.appendChild(mk("div","",`<div style="display:flex;align-items:center;gap:16px;margin-bottom:14px">${ringSVG(pct, ringColorFor(pct), 72)}<div style="font-weight:700;color:var(--ink)">${label}</div></div>`));
+      resCard.appendChild(mk("div","ai-out", renderAI(res.replace(/SCORE:\s*\d{1,3}\s*/i,"").trim())));
+    } else {
+      resCard.appendChild(mk("div","ai-out", renderAI(res)));
+    }
+    root.appendChild(resCard);
+    if (window.lucide) lucide.createIcons();
+  }
+  if (window.lucide) lucide.createIcons();
+}
+
+async function doLinkedIn(toolId) {
+  LI.loading[toolId] = true; renderLinkedIn();
+
+  const name = LI.name || "the student";
+  const headline = LI.headline || "(no current headline)";
+  const role = LI.targetRole || "an entry-level role";
+  const summary = LI.summary || "(no summary provided)";
+  let system = "", user = "";
+
+  if (toolId === "score") {
+    system = "You are a LinkedIn profile optimization expert who has reviewed thousands of student profiles for recruiter-readiness. Be honest, specific, and encouraging.";
+    user = `Student: ${name}\nCurrent headline: ${headline}\nTarget role: ${role}\nAbout/experience summary: ${summary}\n\nScore this profile 0-100 for how recruiter-ready it is, then explain. Respond in EXACTLY this format:\nSCORE: <number>\n# Profile score breakdown\n## Headline\n## About section\n## Experience & skills\n## Top 3 fixes to raise this score`;
+  } else if (toolId === "recruiter") {
+    system = "You are a technical recruiter who screens dozens of LinkedIn profiles a week. Give a blunt, realistic assessment — the kind you'd give a colleague, not a pep talk.";
+    user = `Student: ${name}\nHeadline: ${headline}\nTarget role: ${role}\nAbout/experience: ${summary}\n\nSimulate how you'd evaluate this profile if it landed in your search results. Respond in EXACTLY this format:\nSCORE: <shortlist probability 0-100>\n# Recruiter's-eye view\n## First impression (first 5 seconds)\n## Strengths\n## Weaknesses\n## Would I shortlist this for ${role}? Why`;
+  } else if (toolId === "url") {
+    system = "You help students pick clean, professional LinkedIn profile URLs (the linkedin.com/in/xxxx handle).";
+    user = `Full name: ${name}\nTarget role: ${role}\n\nSuggest 6 custom LinkedIn URL handles (lowercase, no spaces or special characters). Order from best to good, one line each explaining why it works. Format as a numbered list under a "# Custom URL suggestions" heading.`;
+  } else if (toolId === "banner") {
+    system = "You are a LinkedIn branding designer who helps students describe a banner image a designer or Canva template could actually build. Never reference real logos, brands, or copyrighted imagery.";
+    user = `Target role: ${role}\nHeadline: ${headline}\nBackground: ${summary}\n\nGive 3 distinct LinkedIn banner concepts for this person. For each: a short concept name, the layout (text placement, imagery, color palette), and the exact banner tagline text to use. Format as:\n# Banner concepts\n## Concept 1: <name>\n## Concept 2: <name>\n## Concept 3: <name>`;
+  } else if (toolId === "networking") {
+    system = "You write short, warm, non-cringe LinkedIn connection request messages for students. Keep the short version under 300 characters (LinkedIn's connection-note limit). No generic templates, no 'I would like to add you to my professional network'.";
+    user = `Student: ${name}, targeting ${role}.\nBackground: ${summary}\nRecipient type: ${LI.netType}\nContext: ${LI.netContext || "none given — keep it general but warm"}\n\nWrite 2 versions of a message to a ${LI.netType}: one short connection note (under 300 characters) and one slightly longer follow-up message for after they accept. Format as:\n# Networking messages\n## Short connection note\n## Longer follow-up message`;
+  } else if (toolId === "followup") {
+    system = "You write concise, professional follow-up messages for students job-hunting. No desperation, no over-apologizing.";
+    user = `Student: ${name}, applying for ${role} at ${LI.fuCompany || "the company"}.\nBackground: ${summary}\nFollowing up after: ${LI.fuType}\n\nWrite a follow-up message (3-5 sentences) appropriate for following up after ${LI.fuType.toLowerCase()} for this role, plus one line of advice on when to send it. Format as:\n# Follow-up message\n## Message\n## When to send it`;
+  } else if (toolId === "activity") {
+    system = "You are a LinkedIn growth coach for students who recommends realistic, sustainable activity levels — not hustle-culture overload.";
+    user = `Target role: ${role}\nCurrent background: ${summary}\n\nRecommend a realistic weekly LinkedIn activity plan for a student job-hunting. Respond in EXACTLY this format:\n# Weekly activity plan\n## Posting (how often, what kind of content)\n## Commenting (how often, on what kind of posts)\n## Networking (how many new connections/week, who to target)\n## One thing to avoid`;
+  } else if (toolId === "salary") {
+    system = "You give general, realistic salary range estimates for students and early-career professionals based on publicly known market ranges. Always note these are estimates, not guarantees, and vary by company and experience.";
+    user = `Role: ${role}\nLocation: ${LI.location || "India (general)"}\nBackground: ${summary}\n\nGive an estimated entry-level salary range for this role in this location. Respond in EXACTLY this format:\n# Salary insights\n## Estimated range\n## What moves you toward the top of the range\n## How to talk about salary expectations in interviews`;
+  } else if (toolId === "growth") {
+    system = "You are a LinkedIn growth strategist for students. Practical, grouped into weeks, no fluff.";
+    user = `Student: ${name}\nHeadline: ${headline}\nTarget role: ${role}\nBackground: ${summary}\n\nBuild a 30-day LinkedIn growth plan to improve visibility and recruiter engagement, grouped into 4 weeks. Format as:\n# 30-day LinkedIn growth plan\n## Week 1: Foundation\n## Week 2: Visibility\n## Week 3: Networking\n## Week 4: Momentum\n## What success looks like by day 30`;
+  } else if (toolId === "audit") {
+    system = "You are a senior LinkedIn optimization consultant producing a formal audit report for a student, the kind you'd hand over as a paid deliverable. Be thorough, specific, and structured like a real audit — not a casual chat.";
+    user = `Student: ${name}\nHeadline: ${headline}\nTarget role: ${role}\nAbout/experience: ${summary}\n\nProduce a full LinkedIn audit report. Format as:\n# LinkedIn Audit Report\n## Executive summary\n(2-3 sentences overall verdict)\n## Section-by-section review\n### Headline\n### About section\n### Experience\n### Skills\n### Overall completeness\n## Priority fixes (ranked)\n(numbered list, most important first)\n## Quick wins (can do today)\n## Longer-term improvements (this month)`;
+  } else if (toolId === "beforeafter") {
+    system = "You rewrite LinkedIn profile sections to show a clear before-and-after improvement, without inventing facts, companies, or experience that weren't given.";
+    user = `Student: ${name}\nCurrent headline: ${headline}\nTarget role: ${role}\nCurrent About/summary: ${summary}\n\nShow a before-vs-after comparison for this profile. Format as:\n# Before vs After\n## Headline\n### Before\n(their current headline, or "no headline set" if blank)\n### After\n(an improved rewrite)\n## About section\n### Before\n(their current summary as given, condensed if long)\n### After\n(a polished rewrite using only facts they gave)\n## Why this version performs better\n(2-3 concrete reasons)`;
+  } else if (toolId === "visibility") {
+    system = "You are a LinkedIn SEO and recruiter-search specialist. You estimate how easily a profile would surface in recruiter keyword searches, based on keyword density, headline structure, and completeness — not real search-engine data.";
+    user = `Student: ${name}\nHeadline: ${headline}\nTarget role: ${role}\nAbout/experience: ${summary}\n\nEstimate this profile's recruiter search visibility. Respond in EXACTLY this format:\nSCORE: <search visibility score 0-100>\n# Recruiter search visibility\n## Keyword coverage for "${role}"\n(which relevant keywords are present vs missing)\n## Headline searchability\n## Profile completeness signals\n## Top 3 changes to improve visibility`;
+  } else if (toolId === "interviewprob") {
+    system = "You estimate a rough, honest interview-probability score based on how complete and role-aligned a LinkedIn/resume profile is — always framed as an estimate, never a guarantee, since real hiring depends on many factors outside the profile.";
+    const companyLine = LI.fuCompany ? `Target company: ${LI.fuCompany}\n` : "";
+    user = `Student: ${name}\nHeadline: ${headline}\nTarget role: ${role}\n${companyLine}Background: ${summary}\n\nEstimate an interview probability score based on profile completeness and alignment with the target role${LI.fuCompany ? " at "+LI.fuCompany : ""}. Respond in EXACTLY this format:\nSCORE: <interview probability 0-100>\n# Interview probability estimate\n## What's working in your favor\n## What's holding the score back\n## Fastest ways to raise this score\n## Important caveat\n(one line noting this is a profile-based estimate, not a guarantee)`;
+  }
+
+  const result = await ai(system, user);
+  LI.results[toolId] = result;
+  LI.loading[toolId] = false;
+  renderLinkedIn();
 }
 
 /* Wire the auth modal right away — it must work BEFORE boot() ever runs,
