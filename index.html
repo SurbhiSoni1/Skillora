@@ -685,30 +685,6 @@ select.inp{cursor:pointer;min-height:44px}
       <div class="l-stat"><div class="num serif">3.2 hrs</div><div class="lbl">average time to a complete resume</div></div>
     </div>
   </div>
-<div class="l-reviews">
-  <div class="l-reviews-inner">
-    <p class="l-eyebrow">Ratings & reviews</p>
-    <h2 class="serif">What students are saying</h2>
-    <p class="sub">Real feedback from people who've used Skillora to build their resume, plan a roadmap, or crack an interview.</p>
-
-    <div class="rv-summary">
-      <div>
-        <div class="rv-score" id="rvScore">0.0</div>
-        <div class="rv-score-meta">
-          <div class="rv-stars-row" id="rvAvgStars"></div>
-          <div class="rv-count" id="rvCount">0 reviews</div>
-        </div>
-      </div>
-      <div class="rv-bars" id="rvBars"></div>
-      <button class="btn btn-amber rv-cta" id="rvOpenForm">★ Leave a review</button>
-    </div>
-
-    <div class="rv-grid" id="rvGrid"></div>
-    <div class="rv-more-wrap">
-      <button class="btn btn-ghost" id="rvMoreBtn" style="display:none">Show more reviews</button>
-    </div>
-  </div>
-</div>
   <div class="l-cta">
     <h2 class="serif">Start with one question.</h2>
     <p>You don't need to fill a form. Just open it and ask.</p>
@@ -723,12 +699,6 @@ select.inp{cursor:pointer;min-height:44px}
 
 <!-- ═══════════════ AUTH MODAL ═══════════════ -->
 <div class="auth-overlay" id="authOverlay" onclick="if(event.target===this)closeAuthModal()">
-  <div class="rv-form-overlay" id="rvFormOverlay" onclick="if(event.target===this)closeReviewForm()">
-  <div class="rv-form-card">
-    <button class="rv-form-close" onclick="closeReviewForm()">✕</button>
-    <div id="rvFormInner"></div>
-  </div>
-</div>
   <div class="auth-card">
     <div class="auth-blob"></div>
     <div class="auth-emoji"><i data-lucide="sparkles" class="ic"></i></div>
@@ -744,6 +714,14 @@ select.inp{cursor:pointer;min-height:44px}
     </div>
     <button class="btn btn-amber btn-full" id="authSubmit" style="margin-top:16px">Let's gooo <i data-lucide="rocket" class="ic"></i></button>
     <div class="auth-hint">You can change this later — it's just for your dashboard.</div>
+  </div>
+</div>
+
+<!-- ═══════════════ REVIEW FORM MODAL ═══════════════ -->
+<div class="rv-form-overlay" id="rvFormOverlay" onclick="if(event.target===this)closeReviewForm()">
+  <div class="rv-form-card">
+    <button class="rv-form-close" onclick="closeReviewForm()">✕</button>
+    <div id="rvFormInner"></div>
   </div>
 </div>
 
@@ -803,6 +781,7 @@ select.inp{cursor:pointer;min-height:44px}
         <div class="j-item" onclick="nav('jobs')"><div class="j-icon"><i data-lucide="target" class="ic"></i></div><div class="j-text"><div class="t">See my Job Match Board</div><div class="d">Roles ranked by % fit to your skills — internships, jobs & hackathons.</div></div><div class="j-arrow">→</div></div>
         <div class="j-item" onclick="nav('simulate')"><div class="j-icon">⚙</div><div class="j-text"><div class="t">Try a job simulation</div><div class="d">A real mini on-the-job task, graded with instant feedback.</div></div><div class="j-arrow">→</div></div>
         <div class="j-item" onclick="nav('linkedin')"><div class="j-icon"><span class="plat-logo mono" style="background:#0A66C2">in</span></div><div class="j-text"><div class="t">Optimize my LinkedIn</div><div class="d">Profile score, recruiter review, messages, growth plan & more.</div></div><div class="j-arrow">→</div></div>
+        <div class="j-item" onclick="nav('reviews')"><div class="j-icon">★</div><div class="j-text"><div class="t">Rate your experience</div><div class="d">Leave a rating and a comment for other students.</div></div><div class="j-arrow">→</div></div>
       </div>
     </section>
 
@@ -817,6 +796,27 @@ select.inp{cursor:pointer;min-height:44px}
     <section class="screen" data-s="jobs" id="sJobs"></section>
     <section class="screen" data-s="simulate" id="sSimulate"></section>
     <section class="screen" data-s="linkedin" id="sLinkedIn"></section>
+    <section class="screen" data-s="reviews" id="sReviews">
+      <h2 class="section-head serif">Ratings & Reviews</h2>
+      <p class="h-sub">Real feedback from students who've used Skillora to build their resume, plan a roadmap, or crack an interview. Rate your own experience below.</p>
+
+      <div class="rv-summary">
+        <div>
+          <div class="rv-score" id="rvScore">0.0</div>
+          <div class="rv-score-meta">
+            <div class="rv-stars-row" id="rvAvgStars"></div>
+            <div class="rv-count" id="rvCount">0 reviews</div>
+          </div>
+        </div>
+        <div class="rv-bars" id="rvBars"></div>
+        <button class="btn btn-amber rv-cta" id="rvOpenForm">★ Leave a review</button>
+      </div>
+
+      <div class="rv-grid" id="rvGrid"></div>
+      <div class="rv-more-wrap">
+        <button class="btn btn-ghost" id="rvMoreBtn" style="display:none">Show more reviews</button>
+      </div>
+    </section>
   </main>
 
   <nav class="tabs" id="tabBar"></nav>
@@ -970,6 +970,7 @@ const NAVS = [
   { id:"jobs",          label:"Job Match Board", short:"Jobs",     icon:'<i data-lucide="target" class="ic"></i>' },
   { id:"simulate",      label:"Job Simulations", short:"Simulate", icon:"⚙" },
   { id:"linkedin",      label:"LinkedIn Optimizer", short:"LinkedIn", icon: platLogo("LinkedIn") },
+  { id:"reviews",       label:"Ratings & Reviews", short:"Reviews", icon:"★" },
 ];
 const PRIMARY = ["home","dashboard","resume","chat","skills"];
 let curScreen = "home", moreVisible = false, booted = false, resumeBuiltCount = 0;
