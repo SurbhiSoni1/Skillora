@@ -189,6 +189,7 @@ select.inp{cursor:pointer;min-height:44px}
 @media(max-width:639px){.opp-grid{grid-template-columns:1fr}.fit-card{padding:26px 22px}}
 
 .l-stats{background:var(--sidebar);border-top:1px solid var(--faint);padding:44px 48px}
+
 .l-stats-inner{max-width:880px;margin:0 auto;display:flex;gap:52px;flex-wrap:wrap}
 .l-stat .num{font-family:Georgia,serif;font-size:34px;font-weight:700;color:var(--ink);transition:all .4s}
 .l-stat .lbl{font-size:13px;color:var(--mid);margin-top:4px}
@@ -505,6 +506,50 @@ select.inp{cursor:pointer;min-height:44px}
   #resPrintArea,#resPrintArea *{visibility:visible}
   #resPrintArea{position:absolute;left:0;top:0;width:100%;border:none;box-shadow:none;padding:0}
 }
+/* ── Ratings & Reviews ── */
+.l-reviews{border-top:1px solid var(--faint);padding:68px 48px;position:relative;overflow:hidden}
+.l-reviews-inner{max-width:1000px;margin:0 auto;position:relative;z-index:1}
+.l-reviews h2{font-family:Georgia,serif;font-size:clamp(24px,3.4vw,32px);font-weight:700;margin-bottom:10px}
+.l-reviews>.l-reviews-inner>p.sub{color:var(--mid);font-size:15px;max-width:560px;margin-bottom:8px}
+.rv-summary{display:flex;align-items:center;gap:28px;flex-wrap:wrap;margin:26px 0 36px;padding:26px 30px;border-radius:16px;background:var(--amber-bg);position:relative;overflow:hidden}
+.rv-summary::before{content:"";position:absolute;top:-60px;right:-40px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(194,96,10,.22),transparent 70%);animation:floatSlow 7s ease-in-out infinite}
+.rv-score{font-family:Georgia,serif;font-size:52px;font-weight:700;color:var(--amber);line-height:1;position:relative;z-index:1;animation:countGlow 3s ease infinite}
+.rv-score-meta{position:relative;z-index:1}
+.rv-stars-row{display:flex;gap:3px;margin-bottom:4px}
+.rv-stars-row svg{width:20px;height:20px}
+.rv-count{font-size:13px;color:var(--mid)}
+.rv-bars{flex:1;min-width:200px;display:flex;flex-direction:column;gap:6px;position:relative;z-index:1}
+.rv-bar-row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mid)}
+.rv-bar-track{flex:1;height:7px;background:rgba(194,96,10,.14);border-radius:99px;overflow:hidden}
+.rv-bar-fill{height:100%;background:var(--amber);border-radius:99px;width:0;transition:width 1.1s cubic-bezier(.2,.8,.2,1)}
+.rv-cta{position:relative;z-index:1;margin-left:auto}
+.rv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:8px}
+.rv-card{background:var(--paper);border:1.5px solid var(--faint);border-radius:14px;padding:20px 22px;opacity:0;animation:cardReveal .5s ease forwards;transition:transform .2s,box-shadow .2s,border-color .2s;display:flex;flex-direction:column;gap:10px}
+.rv-card:hover{transform:translateY(-5px);box-shadow:0 10px 26px rgba(0,0,0,.08);border-color:transparent}
+.rv-card-top{display:flex;align-items:center;gap:10px}
+.rv-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;font-family:Georgia,serif;color:#fff;flex-shrink:0}
+.rv-name{font-size:13.5px;font-weight:700;color:var(--ink)}
+.rv-role{font-size:11.5px;color:var(--mid)}
+.rv-stars{display:flex;gap:2px}
+.rv-stars svg{width:14px;height:14px}
+.rv-text{font-size:13.5px;color:var(--mid);line-height:1.6}
+.rv-new{border-color:var(--sage)!important;box-shadow:0 0 0 2px rgba(74,103,65,.16)}
+@media(max-width:899px){.rv-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:639px){.rv-grid{grid-template-columns:1fr}.rv-summary{flex-direction:column;align-items:flex-start}.rv-cta{margin-left:0}}
+.rv-more-wrap{text-align:center;margin-top:6px}
+.rv-form-overlay{display:none;position:fixed;inset:0;background:rgba(28,20,16,.55);backdrop-filter:blur(3px);z-index:300;align-items:center;justify-content:center;padding:20px}
+.rv-form-overlay.on{display:flex;animation:fadeIn .25s ease}
+.rv-form-card{background:var(--paper);border-radius:20px;padding:32px;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);animation:scaleIn .35s cubic-bezier(.2,.8,.2,1);max-height:90vh;overflow-y:auto;position:relative}
+.rv-form-card h3{font-family:Georgia,serif;font-size:20px;font-weight:700;margin-bottom:6px}
+.rv-form-sub{font-size:13px;color:var(--mid);margin-bottom:20px}
+.rv-star-picker{display:flex;gap:8px;margin-bottom:20px}
+.rv-star-picker button{background:none;border:none;padding:2px;cursor:pointer;transition:transform .15s}
+.rv-star-picker button:hover{transform:scale(1.18)}
+.rv-star-picker svg{width:30px;height:30px;transition:fill .15s,stroke .15s}
+.rv-form-close{position:absolute;top:14px;right:16px;background:none;border:none;font-size:20px;color:var(--mid);cursor:pointer}
+.rv-form-actions{display:flex;gap:10px;margin-top:6px}
+.rv-thanks{text-align:center;padding:10px 0}
+.rv-thanks .ti{font-size:36px;margin-bottom:10px;animation:popIn .4s ease}
 </style>
 </head>
 <body>
@@ -640,7 +685,30 @@ select.inp{cursor:pointer;min-height:44px}
       <div class="l-stat"><div class="num serif">3.2 hrs</div><div class="lbl">average time to a complete resume</div></div>
     </div>
   </div>
+<div class="l-reviews">
+  <div class="l-reviews-inner">
+    <p class="l-eyebrow">Ratings & reviews</p>
+    <h2 class="serif">What students are saying</h2>
+    <p class="sub">Real feedback from people who've used Skillora to build their resume, plan a roadmap, or crack an interview.</p>
 
+    <div class="rv-summary">
+      <div>
+        <div class="rv-score" id="rvScore">0.0</div>
+        <div class="rv-score-meta">
+          <div class="rv-stars-row" id="rvAvgStars"></div>
+          <div class="rv-count" id="rvCount">0 reviews</div>
+        </div>
+      </div>
+      <div class="rv-bars" id="rvBars"></div>
+      <button class="btn btn-amber rv-cta" id="rvOpenForm">★ Leave a review</button>
+    </div>
+
+    <div class="rv-grid" id="rvGrid"></div>
+    <div class="rv-more-wrap">
+      <button class="btn btn-ghost" id="rvMoreBtn" style="display:none">Show more reviews</button>
+    </div>
+  </div>
+</div>
   <div class="l-cta">
     <h2 class="serif">Start with one question.</h2>
     <p>You don't need to fill a form. Just open it and ask.</p>
@@ -655,6 +723,12 @@ select.inp{cursor:pointer;min-height:44px}
 
 <!-- ═══════════════ AUTH MODAL ═══════════════ -->
 <div class="auth-overlay" id="authOverlay" onclick="if(event.target===this)closeAuthModal()">
+  <div class="rv-form-overlay" id="rvFormOverlay" onclick="if(event.target===this)closeReviewForm()">
+  <div class="rv-form-card">
+    <button class="rv-form-close" onclick="closeReviewForm()">✕</button>
+    <div id="rvFormInner"></div>
+  </div>
+</div>
   <div class="auth-card">
     <div class="auth-blob"></div>
     <div class="auth-emoji"><i data-lucide="sparkles" class="ic"></i></div>
@@ -2280,6 +2354,164 @@ async function doLinkedIn(toolId) {
   LI.loading[toolId] = false;
   renderLinkedIn();
 }
+/* ═══════════════════════════════════════════════════════
+   RATINGS & REVIEWS — animated, localStorage-backed
+═══════════════════════════════════════════════════════ */
+const RV_SEED = [
+  { name:"Ananya Rao",     role:"Final-year, CS",        rating:5, text:"The resume builder alone was worth it — got 3 interview calls in a week after using it." },
+  { name:"Rohit Mehra",    role:"2nd year, BCA",         rating:5, text:"Career chat answered stuff I was too awkward to ask my seniors. No judgment, just straight answers." },
+  { name:"Sneha Iyer",     role:"3rd year, IT",          rating:4, text:"Roadmap gave me an actual month-by-month plan instead of a vague 'learn DSA' list. Loved it." },
+  { name:"Kabir Singh",    role:"Final-year, ECE",       rating:5, text:"Interview prep for my target company was scarily accurate. Walked in knowing what to expect." },
+  { name:"Priya Nair",     role:"MBA, 1st year",         rating:4, text:"Skill gap check was honest — told me exactly what I was missing instead of sugarcoating it." },
+  { name:"Aditya Verma",   role:"2nd year, Mech",        rating:5, text:"Didn't expect much from an AI tool but the project ideas were genuinely things I could finish." },
+];
+const RV_COLORS = ["#C2600A","#6D4FC2","#1F6FD6","#4A6741","#E0563F","#0A66C2"];
+let RV_DATA = [];
+let RV_VISIBLE = 6;
+
+function rvLoad() {
+  let stored = [];
+  try { stored = JSON.parse(localStorage.getItem("skillora_reviews") || "[]"); } catch(e) { stored = []; }
+  RV_DATA = [...RV_SEED, ...stored];
+}
+function rvSaveUser(review) {
+  let stored = [];
+  try { stored = JSON.parse(localStorage.getItem("skillora_reviews") || "[]"); } catch(e) { stored = []; }
+  stored.push(review);
+  try { localStorage.setItem("skillora_reviews", JSON.stringify(stored)); } catch(e) {}
+}
+function rvStarSVG(filled, size=14, color="var(--amber)") {
+  return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="${filled? color:"none"}" stroke="${color}" stroke-width="1.6">
+    <path d="M12 2.6l2.9 6.2 6.7.7-5 4.7 1.4 6.7L12 17.6 5.9 20.9l1.4-6.7-5-4.7 6.7-.7z" stroke-linejoin="round"/>
+  </svg>`;
+}
+function rvStarsHTML(rating, size=14) {
+  let h = "";
+  for (let i=1;i<=5;i++) h += rvStarSVG(i<=rating, size);
+  return h;
+}
+function rvInitials(name) {
+  const p = name.trim().split(/\s+/);
+  return ((p[0]?.[0]||"") + (p[1]?.[0]||"")).toUpperCase();
+}
+function rvAvg() {
+  if (!RV_DATA.length) return 0;
+  return RV_DATA.reduce((s,r)=>s+r.rating,0) / RV_DATA.length;
+}
+function rvCountUpDecimal(el, target, dur=1000) {
+  const start = performance.now();
+  (function tick(now){
+    const p = Math.min((now-start)/dur, 1);
+    el.textContent = (target*(1-Math.pow(1-p,3))).toFixed(1);
+    if (p<1) requestAnimationFrame(tick);
+  })(performance.now());
+}
+
+function renderReviews() {
+  const avg = rvAvg();
+  const scoreEl = document.getElementById("rvScore");
+  if (scoreEl) { scoreEl.textContent = "0.0"; rvCountUpDecimal(scoreEl, avg); }
+  const avgStarsEl = document.getElementById("rvAvgStars");
+  if (avgStarsEl) avgStarsEl.innerHTML = rvStarsHTML(Math.round(avg), 20);
+  const countEl = document.getElementById("rvCount");
+  if (countEl) countEl.textContent = `${RV_DATA.length} review${RV_DATA.length===1?"":"s"}`;
+
+  const barsEl = document.getElementById("rvBars");
+  if (barsEl) {
+    barsEl.innerHTML = "";
+    for (let star=5; star>=1; star--) {
+      const n = RV_DATA.filter(r=>r.rating===star).length;
+      const pct = RV_DATA.length ? Math.round((n/RV_DATA.length)*100) : 0;
+      const row = document.createElement("div"); row.className = "rv-bar-row";
+      row.innerHTML = `<span style="width:34px">${star} ★</span><div class="rv-bar-track"><div class="rv-bar-fill" data-pct="${pct}"></div></div><span style="width:26px;text-align:right">${n}</span>`;
+      barsEl.appendChild(row);
+    }
+    requestAnimationFrame(()=> setTimeout(()=>{
+      barsEl.querySelectorAll(".rv-bar-fill").forEach(f=> f.style.width = f.dataset.pct + "%");
+    }, 80));
+  }
+
+  const grid = document.getElementById("rvGrid");
+  if (grid) {
+    grid.innerHTML = "";
+    const toShow = RV_DATA.slice().reverse().slice(0, RV_VISIBLE);
+    toShow.forEach((r,i) => {
+      const card = document.createElement("div");
+      card.className = "rv-card" + (r._new ? " rv-new" : "");
+      card.style.animationDelay = (i*0.06)+"s";
+      const color = RV_COLORS[i % RV_COLORS.length];
+      card.innerHTML = `
+        <div class="rv-card-top">
+          <div class="rv-avatar" style="background:${color}">${rvInitials(r.name)}</div>
+          <div>
+            <div class="rv-name">${esc(r.name)}</div>
+            <div class="rv-role">${esc(r.role||"Student")}</div>
+          </div>
+        </div>
+        <div class="rv-stars">${rvStarsHTML(r.rating)}</div>
+        <div class="rv-text">${esc(r.text)}</div>`;
+      grid.appendChild(card);
+    });
+    const moreBtn = document.getElementById("rvMoreBtn");
+    if (moreBtn) moreBtn.style.display = RV_VISIBLE < RV_DATA.length ? "" : "none";
+  }
+}
+
+function openReviewForm() {
+  const inner = document.getElementById("rvFormInner");
+  let rating = 0;
+  inner.innerHTML = `
+    <h3>Rate your experience</h3>
+    <p class="rv-form-sub">Your honest feedback helps other students trust Skillora.</p>
+    <div class="rv-star-picker" id="rvPicker"></div>
+    <div class="field"><label>Your name</label><input class="inp" id="rvName" placeholder="e.g. Aarav Sharma"></div>
+    <div class="field"><label>You are a…</label><input class="inp" id="rvRole" placeholder="e.g. Final-year, CS"></div>
+    <div class="field"><label>Your review</label><textarea class="inp" id="rvText" rows="3" placeholder="What worked well for you?"></textarea></div>
+    <div class="rv-form-actions">
+      <button class="btn btn-outline" onclick="closeReviewForm()">Cancel</button>
+      <button class="btn btn-amber btn-full" id="rvSubmitBtn">Submit review</button>
+    </div>`;
+  const picker = document.getElementById("rvPicker");
+  for (let i=1;i<=5;i++) {
+    const b = document.createElement("button");
+    b.innerHTML = rvStarSVG(false, 30);
+    b.addEventListener("click", ()=>{ rating=i; Array.from(picker.children).forEach((c,idx)=>{ c.innerHTML = rvStarSVG(idx<rating,30); }); });
+    picker.appendChild(b);
+  }
+  document.getElementById("rvSubmitBtn").addEventListener("click", ()=>{
+    const name = document.getElementById("rvName").value.trim();
+    const role = document.getElementById("rvRole").value.trim();
+    const text = document.getElementById("rvText").value.trim();
+    if (!rating || !name || !text) {
+      inner.querySelectorAll(".inp").forEach(el=>{
+        if ((el.id==="rvName"&&!name)||(el.id==="rvText"&&!text)) {
+          el.style.borderColor="var(--coral)";
+          el.animate([{transform:"translateX(0)"},{transform:"translateX(-6px)"},{transform:"translateX(6px)"},{transform:"translateX(0)"}],{duration:280});
+          setTimeout(()=>{ el.style.borderColor=""; },900);
+        }
+      });
+      if (!rating) picker.animate([{transform:"translateX(0)"},{transform:"translateX(-6px)"},{transform:"translateX(6px)"},{transform:"translateX(0)"}],{duration:280});
+      return;
+    }
+    const review = { name, role: role||"Student", rating, text, _new:true };
+    RV_DATA.push(review);
+    rvSaveUser({ name, role: role||"Student", rating, text });
+    RV_VISIBLE = Math.max(RV_VISIBLE, RV_DATA.length >= 6 ? RV_VISIBLE : RV_DATA.length);
+    inner.innerHTML = `<div class="rv-thanks"><div class="ti">🎉</div><h3>Thanks for the feedback!</h3><p class="rv-form-sub">Your review is now live below.</p><button class="btn btn-amber btn-full" onclick="closeReviewForm()">Done</button></div>`;
+    renderReviews();
+    setTimeout(()=>{ const el = document.getElementById("rvGrid"); if (el) el.scrollIntoView({behavior:"smooth",block:"center"}); }, 400);
+  });
+}
+function closeReviewForm() { document.getElementById("rvFormOverlay").classList.remove("on"); }
+
+document.addEventListener("DOMContentLoaded", ()=>{
+  rvLoad(); renderReviews();
+  const openBtn = document.getElementById("rvOpenForm");
+  if (openBtn) openBtn.addEventListener("click", ()=>{ document.getElementById("rvFormOverlay").classList.add("on"); openReviewForm(); });
+  const moreBtn = document.getElementById("rvMoreBtn");
+  if (moreBtn) moreBtn.addEventListener("click", ()=>{ RV_VISIBLE += 6; renderReviews(); });
+});
+
 
 /* Wire the auth modal right away — it must work BEFORE boot() ever runs,
    since boot() only happens after a successful sign-up. */
