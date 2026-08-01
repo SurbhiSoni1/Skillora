@@ -2392,10 +2392,11 @@ async function rvLoad() {
     try {
       const { data, error } = await rvClient
         .from("reviews")
-        .select("name, role, rating, text, created_at")
+        .select("name, rating, comment, created_at")
         .order("created_at", { ascending: true });
       if (error) throw error;
-      RV_DATA = [...RV_SEED, ...(data || [])];
+      const real = (data || []).map(d => ({ name: d.name, role: "Student", rating: d.rating, text: d.comment }));
+      RV_DATA = [...RV_SEED, ...real];
       return;
     } catch (e) {
       console.warn("Supabase reviews load failed, falling back to local cache:", e);
@@ -2409,7 +2410,7 @@ async function rvLoad() {
 async function rvSaveUser(review) {
   if (rvClient) {
     try {
-      const { error } = await rvClient.from("reviews").insert([review]);
+      const { error } = await rvClient.from("reviews").insert([{ name: review.name, rating: review.rating, comment: review.text }]);
       if (error) throw error;
       return true;
     } catch (e) {
@@ -2509,7 +2510,6 @@ function openReviewForm() {
     <p class="rv-form-sub">Your honest feedback helps other students trust Skillora.</p>
     <div class="rv-star-picker" id="rvPicker"></div>
     <div class="field"><label>Your name</label><input class="inp" id="rvName" placeholder="e.g. Aarav Sharma"></div>
-    <div class="field"><label>You are a…</label><input class="inp" id="rvRole" placeholder="e.g. Final-year, CS"></div>
     <div class="field"><label>Your review</label><textarea class="inp" id="rvText" rows="3" placeholder="What worked well for you?"></textarea></div>
     <div class="rv-form-actions">
       <button class="btn btn-outline" onclick="closeReviewForm()">Cancel</button>
@@ -2524,7 +2524,6 @@ function openReviewForm() {
   }
   document.getElementById("rvSubmitBtn").addEventListener("click", async ()=>{
     const name = document.getElementById("rvName").value.trim();
-    const role = document.getElementById("rvRole").value.trim();
     const text = document.getElementById("rvText").value.trim();
     if (!rating || !name || !text) {
       inner.querySelectorAll(".inp").forEach(el=>{
@@ -2540,8 +2539,8 @@ function openReviewForm() {
     const submitBtn = document.getElementById("rvSubmitBtn");
     submitBtn.disabled = true;
     submitBtn.textContent = "Submitting…";
-    const savedRemotely = await rvSaveUser({ name, role: role||"Student", rating, text });
-    const review = { name, role: role||"Student", rating, text, _new:true };
+    const savedRemotely = await rvSaveUser({ name, role: "Student", rating, text });
+    const review = { name, role: "Student", rating, text, _new:true };
     RV_DATA.push(review);
     RV_VISIBLE = Math.max(RV_VISIBLE, RV_DATA.length >= 6 ? RV_VISIBLE : RV_DATA.length);
     const note = savedRemotely
