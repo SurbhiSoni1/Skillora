@@ -825,6 +825,23 @@ select.inp{cursor:pointer;min-height:44px}
 </div>
 
 <script id="lucideLib" src="https://cdn.jsdelivr.net/npm/lucide@0.462.0/dist/umd/lucide.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+/* ═══════════════════════════════════════════════════════
+   SUPABASE CONFIG — REVIEWS
+   Fill these in with your own project's values:
+   Supabase dashboard → Project Settings → API
+   - SUPABASE_URL     → "Project URL"
+   - SUPABASE_ANON_KEY → "anon public" key (safe to expose in frontend code)
+   Also run the SQL in supabase_reviews_setup.sql (provided separately)
+   against your project's SQL editor before this will work.
+═══════════════════════════════════════════════════════ */
+const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
+const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+const rvClient = (SUPABASE_URL.startsWith("http") && window.supabase)
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
+</script>
 <script>
 /* ═══════════════════════════════════════════════════════
    API
@@ -2370,16 +2387,42 @@ const RV_COLORS = ["#C2600A","#6D4FC2","#1F6FD6","#4A6741","#E0563F","#0A66C2"];
 let RV_DATA = [];
 let RV_VISIBLE = 6;
 
-function rvLoad() {
+async function rvLoad() {
+  if (rvClient) {
+    try {
+      const { data, error } = await rvClient
+        .from("reviews")
+        .select("name, role, rating, text, created_at")
+        .order("created_at", { ascending: true });
+      if (error) throw error;
+      RV_DATA = [...RV_SEED, ...(data || [])];
+      return;
+    } catch (e) {
+      console.warn("Supabase reviews load failed, falling back to local cache:", e);
+    }
+  }
+  // Fallback: unconfigured Supabase project, or a failed request.
   let stored = [];
   try { stored = JSON.parse(localStorage.getItem("skillora_reviews") || "[]"); } catch(e) { stored = []; }
   RV_DATA = [...RV_SEED, ...stored];
 }
-function rvSaveUser(review) {
+async function rvSaveUser(review) {
+  if (rvClient) {
+    try {
+      const { error } = await rvClient.from("reviews").insert([review]);
+      if (error) throw error;
+      return true;
+    } catch (e) {
+      console.warn("Supabase review save failed, saving locally instead:", e);
+    }
+  }
+  // Fallback: unconfigured Supabase project, or a failed request — review still
+  // saves for this visitor so nothing is lost, but won't be visible to others.
   let stored = [];
   try { stored = JSON.parse(localStorage.getItem("skillora_reviews") || "[]"); } catch(e) { stored = []; }
   stored.push(review);
   try { localStorage.setItem("skillora_reviews", JSON.stringify(stored)); } catch(e) {}
+  return false;
 }
 function rvStarSVG(filled, size=14, color="var(--amber)") {
   return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="${filled? color:"none"}" stroke="${color}" stroke-width="1.6">
@@ -2479,7 +2522,7 @@ function openReviewForm() {
     b.addEventListener("click", ()=>{ rating=i; Array.from(picker.children).forEach((c,idx)=>{ c.innerHTML = rvStarSVG(idx<rating,30); }); });
     picker.appendChild(b);
   }
-  document.getElementById("rvSubmitBtn").addEventListener("click", ()=>{
+  document.getElementById("rvSubmitBtn").addEventListener("click", async ()=>{
     const name = document.getElementById("rvName").value.trim();
     const role = document.getElementById("rvRole").value.trim();
     const text = document.getElementById("rvText").value.trim();
@@ -2494,11 +2537,17 @@ function openReviewForm() {
       if (!rating) picker.animate([{transform:"translateX(0)"},{transform:"translateX(-6px)"},{transform:"translateX(6px)"},{transform:"translateX(0)"}],{duration:280});
       return;
     }
+    const submitBtn = document.getElementById("rvSubmitBtn");
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Submitting…";
+    const savedRemotely = await rvSaveUser({ name, role: role||"Student", rating, text });
     const review = { name, role: role||"Student", rating, text, _new:true };
     RV_DATA.push(review);
-    rvSaveUser({ name, role: role||"Student", rating, text });
     RV_VISIBLE = Math.max(RV_VISIBLE, RV_DATA.length >= 6 ? RV_VISIBLE : RV_DATA.length);
-    inner.innerHTML = `<div class="rv-thanks"><div class="ti">🎉</div><h3>Thanks for the feedback!</h3><p class="rv-form-sub">Your review is now live below.</p><button class="btn btn-amber btn-full" onclick="closeReviewForm()">Done</button></div>`;
+    const note = savedRemotely
+      ? "Your review is now live below for everyone to see."
+      : "Saved on this device — connect Supabase to make reviews visible to everyone.";
+    inner.innerHTML = `<div class="rv-thanks"><div class="ti">🎉</div><h3>Thanks for the feedback!</h3><p class="rv-form-sub">${note}</p><button class="btn btn-amber btn-full" onclick="closeReviewForm()">Done</button></div>`;
     renderReviews();
     setTimeout(()=>{ const el = document.getElementById("rvGrid"); if (el) el.scrollIntoView({behavior:"smooth",block:"center"}); }, 400);
   });
@@ -2506,7 +2555,9 @@ function openReviewForm() {
 function closeReviewForm() { document.getElementById("rvFormOverlay").classList.remove("on"); }
 
 document.addEventListener("DOMContentLoaded", ()=>{
-  rvLoad(); renderReviews();
+  RV_DATA = [...RV_SEED];
+  renderReviews();
+  rvLoad().then(renderReviews);
   const openBtn = document.getElementById("rvOpenForm");
   if (openBtn) openBtn.addEventListener("click", ()=>{ document.getElementById("rvFormOverlay").classList.add("on"); openReviewForm(); });
   const moreBtn = document.getElementById("rvMoreBtn");
