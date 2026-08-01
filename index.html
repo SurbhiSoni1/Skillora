@@ -836,8 +836,8 @@ select.inp{cursor:pointer;min-height:44px}
    Also run the SQL in supabase_reviews_setup.sql (provided separately)
    against your project's SQL editor before this will work.
 ═══════════════════════════════════════════════════════ */
-const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
-const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+const SUPABASE_URL = "https://iahuxkbmumzfhbqjmelv.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhaHV4a2JtdW16ZmhicWptZWx2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzMjQyMTYsImV4cCI6MjEwMDkwMDIxNn0.cC7Nk9HT494o6AXaa0uoAr-wwtV4GY0B-JoDx2HFK1o";
 const rvClient = (SUPABASE_URL.startsWith("http") && window.supabase)
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
   : null;
